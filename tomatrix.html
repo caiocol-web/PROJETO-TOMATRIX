@@ -1,0 +1,3001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TOMATRIX</title>
+
+<style>
+:root{
+  --bg:#05090d;
+  --bg2:#071019;
+  --panel:#0a141c;
+  --panel2:#0c1821;
+  --panel3:#101e28;
+  --border:#173342;
+  --border2:#214658;
+  --text:#dff6ff;
+  --muted:#66899b;
+  --dim:#3c5c6b;
+
+  --cyan:#27e6ff;
+  --cyan2:#00aeca;
+  --green:#39ff8a;
+  --yellow:#ffc83d;
+  --red:#ff4560;
+  --orange:#ff8a3d;
+
+  --shadow:0 10px 35px rgba(0,0,0,.28);
+
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{box-sizing:border-box}
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:80px;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(1000px 500px at 50% -15%,#103040 0%,transparent 70%),
+    linear-gradient(180deg,#060c12,#03070a);
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  min-height:100vh;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+
+  display:flex;
+  align-items:center;
+  gap:22px;
+
+  min-height:70px;
+  padding:10px 18px;
+
+  background:rgba(5,10,15,.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(18px);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:250px;
+}
+
+.tomato{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+
+  border:1px solid #27e6ff55;
+  border-radius:10px;
+
+  background:#27e6ff0b;
+  box-shadow:0 0 25px #27e6ff10;
+
+  font-size:21px;
+}
+
+.brand-title{
+  font-size:.98rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  color:var(--cyan);
+}
+
+.brand-sub{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:.61rem;
+  letter-spacing:.13em;
+}
+
+.sim-clock{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1;
+}
+
+.phase{
+  font-size:1.5rem;
+}
+
+.clock-main{
+  font-size:1.45rem;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+.clock-sub{
+  margin-top:-2px;
+  color:var(--muted);
+  font-size:.67rem;
+  letter-spacing:.08em;
+}
+
+.clock-progress{
+  width:min(250px,22vw);
+  height:6px;
+  overflow:hidden;
+
+  border-radius:99px;
+  background:#10232e;
+}
+
+.clock-progress i{
+  display:block;
+  height:100%;
+  width:0;
+
+  background:linear-gradient(90deg,var(--cyan),#83f5ff);
+  box-shadow:0 0 15px #27e6ff99;
+
+  transition:width .3s;
+}
+
+.sim-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.btn{
+  min-height:34px;
+
+  padding:6px 11px;
+
+  color:var(--text);
+  background:#09131a;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.btn:hover{
+  border-color:var(--border2);
+  background:#0d1b24;
+}
+
+.btn.primary{
+  color:var(--cyan);
+  border-color:#27e6ff66;
+  background:#27e6ff0b;
+}
+
+.btn.danger{
+  color:var(--red);
+}
+
+.speed{
+  height:34px;
+
+  color:var(--text);
+  background:#09131a;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:0 9px;
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.shell{
+  width:min(1500px,100%);
+  margin:auto;
+  padding:14px;
+}
+
+/* =========================================================
+   GENERAL PANELS
+========================================================= */
+
+.panel{
+  background:linear-gradient(180deg,var(--panel),#081119);
+  border:1px solid var(--border);
+  border-radius:13px;
+  box-shadow:var(--shadow);
+}
+
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:13px 15px;
+
+  border-bottom:1px solid var(--border);
+}
+
+.panel-title{
+  color:var(--muted);
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.16em;
+}
+
+.panel-body{
+  padding:14px;
+}
+
+/* =========================================================
+   SYSTEM OVERVIEW
+========================================================= */
+
+.overview{
+  display:grid;
+  grid-template-columns:1.4fr repeat(4,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.overview-main,
+.overview-stat{
+  min-height:100px;
+
+  padding:14px;
+
+  border:1px solid var(--border);
+  border-radius:12px;
+
+  background:linear-gradient(135deg,#0c1922,#09131a);
+}
+
+.overview-main{
+  position:relative;
+  overflow:hidden;
+}
+
+.overview-main:after{
+  content:"";
+  position:absolute;
+  width:160px;
+  height:160px;
+  right:-60px;
+  top:-80px;
+
+  background:radial-gradient(circle,#27e6ff18,transparent 70%);
+}
+
+.status-line{
+  display:flex;
+  align-items:center;
+  gap:9px;
+
+  font-size:.68rem;
+  color:var(--muted);
+  letter-spacing:.12em;
+}
+
+.status-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px currentColor;
+}
+
+.status-title{
+  margin-top:7px;
+  font-size:1.15rem;
+  font-weight:900;
+}
+
+.status-description{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.73rem;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:.65rem;
+  letter-spacing:.09em;
+}
+
+.stat-value{
+  margin-top:7px;
+  font-size:1.8rem;
+  line-height:1;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+.stat-small{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:.68rem;
+}
+
+/* =========================================================
+   MAIN GRID
+========================================================= */
+
+.main-grid{
+  display:grid;
+  grid-template-columns:215px minmax(0,1fr) 300px;
+  gap:12px;
+  align-items:start;
+}
+
+/* =========================================================
+   BEDS
+========================================================= */
+
+.beds{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.bed{
+  position:relative;
+  overflow:hidden;
+
+  padding:12px;
+
+  border:1px solid var(--border);
+  border-radius:11px;
+
+  background:#09131a;
+
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.bed:hover{
+  transform:translateY(-1px);
+  border-color:#285267;
+}
+
+.bed.selected{
+  border-color:#27e6ff88;
+  background:linear-gradient(90deg,#27e6ff12,#0b151d);
+  box-shadow:inset 3px 0 0 var(--cyan);
+}
+
+.bed-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.bed-name{
+  font-size:.78rem;
+  font-weight:800;
+}
+
+.bed-icon{
+  font-size:1rem;
+}
+
+.bed-score{
+  margin-top:9px;
+  font-size:2rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.bed-score span{
+  color:var(--muted);
+  font-size:.65rem;
+  font-weight:500;
+}
+
+.bed-status{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:.66rem;
+}
+
+.score-bar{
+  height:4px;
+  margin-top:10px;
+
+  overflow:hidden;
+  border-radius:99px;
+  background:#12232d;
+}
+
+.score-bar i{
+  display:block;
+  height:100%;
+  border-radius:99px;
+}
+
+.alert-count{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:.63rem;
+}
+
+/* =========================================================
+   SENSOR AREA
+========================================================= */
+
+.sensor-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.selected-title{
+  font-size:1.05rem;
+  font-weight:900;
+}
+
+.selected-sub{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:.68rem;
+}
+
+.sensor-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.sensor{
+  min-height:170px;
+
+  padding:12px;
+
+  border:1px solid var(--border);
+  border-top:2px solid var(--sensor-color);
+  border-radius:11px;
+
+  background:#09131a;
+}
+
+.sensor-top{
+  display:flex;
+  justify-content:space-between;
+  gap:7px;
+}
+
+.sensor-icon{
+  font-size:1.1rem;
+}
+
+.sensor-name{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:.65rem;
+  letter-spacing:.03em;
+}
+
+.sensor-value{
+  margin-top:4px;
+
+  font-size:1.9rem;
+  font-weight:900;
+  line-height:1;
+
+  font-variant-numeric:tabular-nums;
+}
+
+.sensor-value small{
+  color:var(--muted);
+  font-size:.65rem;
+  font-weight:500;
+}
+
+.badge{
+  align-self:flex-start;
+
+  padding:3px 7px;
+
+  border:1px solid currentColor;
+  border-radius:99px;
+
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.sensor-trend{
+  margin-top:7px;
+  font-size:.63rem;
+  font-weight:700;
+}
+
+.range{
+  position:relative;
+  height:7px;
+  margin-top:12px;
+
+  border-radius:99px;
+  background:
+    linear-gradient(
+      90deg,
+      #ff456030 0 35%,
+      #ffc83d35 35% 50%,
+      #39ff8a45 50% 70%,
+      #ffc83d35 70% 85%,
+      #ff456030 85%
+    );
+}
+
+.range i{
+  position:absolute;
+  top:50%;
+  width:9px;
+  height:17px;
+
+  border:2px solid white;
+  border-radius:5px;
+
+  background:var(--sensor-color);
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 10px var(--sensor-color);
+}
+
+.range-labels{
+  display:flex;
+  justify-content:space-between;
+  margin-top:4px;
+
+  color:var(--dim);
+  font-size:.52rem;
+}
+
+.spark{
+  height:30px;
+  margin-top:6px;
+}
+
+.spark svg{
+  width:100%;
+  height:100%;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.alerts{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  max-height:470px;
+  overflow:auto;
+}
+
+.alert{
+  padding:10px;
+
+  border:1px solid var(--border);
+  border-left:3px solid var(--alert-color);
+  border-radius:9px;
+
+  background:#09131a;
+}
+
+.alert-top{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+}
+
+.alert-severity{
+  color:var(--alert-color);
+  font-size:.57rem;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+
+.alert-time{
+  color:var(--muted);
+  font-size:.56rem;
+}
+
+.alert-title{
+  margin-top:4px;
+  font-size:.71rem;
+  font-weight:800;
+}
+
+.alert-value{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:.63rem;
+}
+
+.alert-action{
+  margin-top:7px;
+  color:var(--text);
+  font-size:.62rem;
+}
+
+.alert-action b{
+  color:var(--cyan);
+}
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline-panel{
+  margin-top:12px;
+}
+
+.timeline{
+  position:relative;
+  height:82px;
+  padding:16px 5px 0;
+}
+
+.timeline-line{
+  position:absolute;
+  left:5px;
+  right:5px;
+  top:38px;
+  height:2px;
+
+  background:linear-gradient(90deg,#17313e,#27e6ff,#17313e);
+}
+
+.timeline-hours{
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+
+  color:var(--muted);
+  font-size:.58rem;
+}
+
+.time-event{
+  position:absolute;
+  top:27px;
+  transform:translateX(-50%);
+}
+
+.event-dot{
+  width:12px;
+  height:12px;
+
+  border:2px solid var(--bg);
+  border-radius:50%;
+
+  background:var(--event-color);
+  box-shadow:0 0 9px var(--event-color);
+}
+
+.event-label{
+  position:absolute;
+  top:17px;
+  left:50%;
+  transform:translateX(-50%);
+
+  white-space:nowrap;
+
+  color:var(--muted);
+  font-size:.5rem;
+}
+
+.now-marker{
+  position:absolute;
+  top:8px;
+  width:2px;
+  height:48px;
+
+  background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);
+}
+
+/* =========================================================
+   BOTTOM GRID
+========================================================= */
+
+.bottom-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.compare{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.68rem;
+}
+
+.compare th,
+.compare td{
+  padding:9px 7px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
+.compare th{
+  color:var(--muted);
+  font-size:.59rem;
+  font-weight:700;
+  letter-spacing:.05em;
+}
+
+.compare td.value{
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+
+.sensor-state{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+
+.state-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:currentColor;
+}
+
+/* =========================================================
+   EVENTS / LOG
+========================================================= */
+
+.event-log{
+  max-height:300px;
+  overflow:auto;
+}
+
+.log-item{
+  display:flex;
+  gap:9px;
+  padding:8px 0;
+
+  border-bottom:1px dashed var(--border);
+}
+
+.log-time{
+  min-width:40px;
+  color:var(--muted);
+  font-size:.57rem;
+  font-variant-numeric:tabular-nums;
+}
+
+.log-text{
+  color:var(--text);
+  font-size:.63rem;
+}
+
+/* =========================================================
+   MANUAL INPUT
+========================================================= */
+
+.manual{
+  margin-top:12px;
+}
+
+.manual-form{
+  display:grid;
+  grid-template-columns:160px repeat(3,minmax(100px,1fr)) auto;
+  gap:7px;
+  align-items:end;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+
+  color:var(--muted);
+  font-size:.59rem;
+}
+
+.field input,
+.field select{
+  width:100%;
+  height:34px;
+
+  color:var(--text);
+  background:#050b10;
+
+  border:1px solid var(--border);
+  border-radius:7px;
+
+  padding:6px 8px;
+}
+
+.manual-hint{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:.58rem;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty{
+  padding:20px;
+  color:var(--muted);
+  text-align:center;
+  font-size:.68rem;
+}
+
+/* =========================================================
+   MOBILE NAV
+========================================================= */
+
+.mobile-nav{
+  display:none;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1150px){
+  .overview{
+    grid-template-columns:1.5fr repeat(2,1fr);
+  }
+
+  .main-grid{
+    grid-template-columns:190px minmax(0,1fr);
+  }
+
+  .alerts-panel{
+    grid-column:1/-1;
+  }
+
+  .alerts{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    max-height:none;
+  }
+}
+
+@media(max-width:850px){
+  .topbar{
+    padding:9px 12px;
+    gap:10px;
+  }
+
+  .brand{
+    min-width:auto;
+  }
+
+  .brand-sub{
+    display:none;
+  }
+
+  .sim-clock{
+    justify-content:flex-end;
+  }
+
+  .clock-progress{
+    display:none;
+  }
+
+  .overview{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .overview-main{
+    grid-column:1/-1;
+  }
+
+  .main-grid{
+    grid-template-columns:1fr;
+  }
+
+  .beds{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .sensor-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .alerts{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .bottom-grid{
+    grid-template-columns:1fr;
+  }
+
+  .manual-form{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:600px){
+  body{
+    padding-bottom:62px;
+  }
+
+  .topbar{
+    position:sticky;
+    min-height:62px;
+  }
+
+  .brand-title{
+    font-size:.78rem;
+  }
+
+  .tomato{
+    width:33px;
+    height:33px;
+    font-size:17px;
+  }
+
+  .phase{
+    display:none;
+  }
+
+  .clock-main{
+    font-size:1.05rem;
+  }
+
+  .clock-sub{
+    font-size:.55rem;
+  }
+
+  .sim-controls .btn:first-child{
+    font-size:0;
+    width:36px;
+  }
+
+  .sim-controls .btn:first-child:after{
+    content:"▶";
+    font-size:.75rem;
+  }
+
+  .speed{
+    width:48px;
+  }
+
+  .shell{
+    padding:9px;
+  }
+
+  .overview{
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+  }
+
+  .overview-main,
+  .overview-stat{
+    min-height:88px;
+    padding:11px;
+  }
+
+  .status-title{
+    font-size:.95rem;
+  }
+
+  .stat-value{
+    font-size:1.4rem;
+  }
+
+  .beds{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  .bed{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+  }
+
+  .bed-score{
+    margin-top:0;
+    grid-column:2;
+    grid-row:1/4;
+  }
+
+  .bed-status,
+  .score-bar,
+  .alert-count{
+    grid-column:1;
+  }
+
+  .sensor-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sensor{
+    min-height:155px;
+  }
+
+  .alerts{
+    grid-template-columns:1fr;
+  }
+
+  .timeline{
+    overflow:hidden;
+  }
+
+  .compare{
+    min-width:600px;
+  }
+
+  .compare-wrap{
+    overflow:auto;
+  }
+
+  .manual-form{
+    grid-template-columns:1fr;
+  }
+
+  .mobile-nav{
+    position:fixed;
+    z-index:100;
+    left:0;
+    right:0;
+    bottom:0;
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+
+    height:58px;
+    padding-bottom:env(safe-area-inset-bottom);
+
+    background:rgba(5,10,15,.96);
+    border-top:1px solid var(--border);
+    backdrop-filter:blur(18px);
+  }
+
+  .mobile-nav button{
+    border:0;
+    border-radius:0;
+    background:transparent;
+    color:var(--muted);
+    font-size:.55rem;
+  }
+
+  .mobile-nav button.active{
+    color:var(--cyan);
+    background:#27e6ff09;
+  }
+
+  .mobile-nav button span{
+    display:block;
+    margin-bottom:2px;
+    font-size:1rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<header class="topbar">
+
+  <div class="brand">
+    <div class="tomato">🍅</div>
+
+    <div>
+      <div class="brand-title">TOMATO//CMD</div>
+      <div class="brand-sub">AGRICULTURAL CONTROL SYSTEM</div>
+    </div>
+  </div>
+
+  <div class="sim-clock">
+    <div class="phase" id="phase">🌅</div>
+
+    <div>
+      <div class="clock-main" id="tm">05:00</div>
+      <div class="clock-sub" id="dy">DAY 01 · SIMULATION</div>
+    </div>
+
+    <div class="clock-progress">
+      <i id="pg"></i>
+    </div>
+  </div>
+
+  <div class="sim-controls">
+    <button class="btn primary" id="play">▶ Continuar</button>
+
+    <button class="btn" id="step">+10 min</button>
+
+    <select class="speed" id="sp">
+      <option value="1">1x</option>
+      <option value="2">2x</option>
+      <option value="5">5x</option>
+      <option value="10">10x</option>
+    </select>
+  </div>
+
+</header>
+
+
+<main class="shell">
+
+<!-- =======================================================
+     SYSTEM OVERVIEW
+======================================================= -->
+
+<section class="overview">
+
+  <div class="overview-main">
+    <div class="status-line">
+      <i class="status-dot" id="statusDot"></i>
+      <span id="systemStatus">SISTEMA ESTÁVEL</span>
+    </div>
+
+    <div class="status-title" id="systemTitle">
+      Condições favoráveis
+    </div>
+
+    <div class="status-description" id="systemDescription">
+      Monitoramento contínuo dos canteiros.
+    </div>
+  </div>
+
+
+  <div class="overview-stat">
+    <div class="stat-label">CANTEIROS OK</div>
+    <div class="stat-value" id="healthyBeds">3/3</div>
+    <div class="stat-small">condições ideais</div>
+  </div>
+
+
+  <div class="overview-stat">
+    <div class="stat-label">ALERTAS</div>
+    <div class="stat-value" id="alertCount">0</div>
+    <div class="stat-small" id="criticalCount">0 críticos</div>
+  </div>
+
+
+  <div class="overview-stat">
+    <div class="stat-label">MELHOR CANTEIRO</div>
+    <div class="stat-value" id="bestBed">—</div>
+    <div class="stat-small" id="bestScore">— / 100</div>
+  </div>
+
+
+  <div class="overview-stat">
+    <div class="stat-label">TEMPO SIMULADO</div>
+    <div class="stat-value" id="simTime">—</div>
+    <div class="stat-small">10 min / tick</div>
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<section class="main-grid">
+
+<!-- CANTEIROS -->
+
+<aside class="panel" id="bedsSection">
+
+  <div class="panel-head">
+    <div class="panel-title">CANTEIROS</div>
+  </div>
+
+  <div class="panel-body">
+    <div class="beds" id="units"></div>
+  </div>
+
+</aside>
+
+
+<!-- SENSORS -->
+
+<section class="panel">
+
+  <div class="panel-body">
+
+    <div class="sensor-header">
+
+      <div>
+        <div class="selected-title" id="selectedTitle">
+          Estufa 1
+        </div>
+
+        <div class="selected-sub" id="selectedSub">
+          MONITORAMENTO EM TEMPO REAL
+        </div>
+      </div>
+
+      <button class="btn" id="focusHistory">
+        📊 Histórico
+      </button>
+
+    </div>
+
+    <div class="sensor-grid" id="ks"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ALERTS -->
+
+<aside class="panel alerts-panel" id="alertsSection">
+
+  <div class="panel-head">
+    <div class="panel-title">ALERTAS ATIVOS</div>
+    <span class="badge" id="alertBadge">0</span>
+  </div>
+
+  <div class="panel-body">
+    <div class="alerts" id="al"></div>
+  </div>
+
+</aside>
+
+</section>
+
+
+<!-- =======================================================
+     TIMELINE
+======================================================= -->
+
+<section class="panel timeline-panel" id="historySection">
+
+  <div class="panel-head">
+
+    <div>
+      <div class="panel-title">LINHA DO TEMPO · DIA SIMULADO</div>
+    </div>
+
+    <div class="clock-sub">
+      1x = 10 MIN / 2 SEG
+    </div>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="timeline" id="timeline">
+
+      <div class="timeline-line"></div>
+
+      <div class="timeline-hours">
+        <span>00:00</span>
+        <span>04:00</span>
+        <span>08:00</span>
+        <span>12:00</span>
+        <span>16:00</span>
+        <span>20:00</span>
+        <span>24:00</span>
+      </div>
+
+      <div id="events"></div>
+
+      <div class="now-marker" id="nowMarker"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     BOTTOM
+======================================================= -->
+
+<section class="bottom-grid">
+
+<!-- COMPARISON -->
+
+<div class="panel" id="compareSection">
+
+  <div class="panel-head">
+    <div class="panel-title">COMPARATIVO ENTRE CANTEIROS</div>
+  </div>
+
+  <div class="panel-body">
+    <div class="compare-wrap">
+      <table class="compare" id="cmp"></table>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- LOG -->
+
+<div class="panel">
+
+  <div class="panel-head">
+    <div class="panel-title">EVENTOS DO DIA</div>
+  </div>
+
+  <div class="panel-body">
+
+    <div class="event-log" id="lg"></div>
+
+  </div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     MANUAL INPUT
+======================================================= -->
+
+<section class="panel manual" id="controlSection">
+
+  <div class="panel-head">
+
+    <div>
+      <div class="panel-title">INSERIR LEITURA MANUAL</div>
+    </div>
+
+    <div class="clock-sub">
+      OVERRIDE DO SENSOR
+    </div>
+
+  </div>
+
+  <div class="panel-body">
+
+    <form id="f" class="manual-form">
+
+      <label class="field">
+        Canteiro
+
+        <select id="fb"></select>
+      </label>
+
+      <span id="fi" style="display:contents"></span>
+
+      <button class="btn primary" type="submit">
+        Aplicar leitura
+      </button>
+
+    </form>
+
+    <div class="manual-hint">
+      A leitura manual entra no histórico como uma nova medição do instante atual.
+    </div>
+
+    <div style="margin-top:9px">
+      <button class="btn danger" id="clr">
+        ↻ Reiniciar simulação
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- MOBILE NAV -->
+
+<nav class="mobile-nav">
+
+  <button class="active" data-scroll="top">
+    <span>⌂</span>
+    Visão geral
+  </button>
+
+  <button data-scroll="bedsSection">
+    <span>🌱</span>
+    Canteiros
+  </button>
+
+  <button data-scroll="alertsSection">
+    <span>⚠</span>
+    Alertas
+  </button>
+
+  <button data-scroll="historySection">
+    <span>📊</span>
+    Histórico
+  </button>
+
+</nav>
+
+</div>
+
+
+<script>
+/* =========================================================
+   CONFIGURAÇÃO DOS SENSORES
+========================================================= */
+
+const M = [
+
+  {
+    k:"solo",
+    n:"Umidade do solo",
+    icon:"💧",
+    u:"%",
+    min:0,
+    max:100,
+    ok:[60,80],
+    w:[45,90],
+    lo:"Irrigar agora",
+    hi:"Reduzir irrigação"
+  },
+
+  {
+    k:"temp",
+    n:"Temperatura",
+    icon:"🌡",
+    u:"°C",
+    min:5,
+    max:45,
+    ok:[18,28],
+    w:[12,34],
+    lo:"Proteger do frio",
+    hi:"Ventilar ou sombrear"
+  },
+
+  {
+    k:"ar",
+    n:"Umidade do ar",
+    icon:"💨",
+    u:"%",
+    min:0,
+    max:100,
+    ok:[50,70],
+    w:[35,85],
+    lo:"Nebulizar",
+    hi:"Ventilar · risco de míldio"
+  },
+
+  {
+    k:"ph",
+    n:"pH do solo",
+    icon:"⚗",
+    u:"",
+    min:4,
+    max:9,
+    ok:[6,6.8],
+    w:[5.5,7.2],
+    lo:"Aplicar calcário",
+    hi:"Corrigir com enxofre"
+  },
+
+  {
+    k:"luz",
+    n:"Luminosidade",
+    icon:"☀",
+    u:"klux",
+    min:0,
+    max:100,
+    ok:[30,60],
+    w:[15,80],
+    lo:"Checar sombreamento",
+    hi:"Usar tela de sombra"
+  },
+
+  {
+    k:"nut",
+    n:"Nutrientes NPK",
+    icon:"🌱",
+    u:"%",
+    min:0,
+    max:100,
+    ok:[60,90],
+    w:[40,100],
+    lo:"Adubar com NPK",
+    hi:"Lavar o solo"
+  },
+
+  {
+    k:"chuva",
+    n:"Chuva",
+    icon:"🌧",
+    u:"mm/h",
+    min:0,
+    max:30,
+    ok:[0,2],
+    w:[0,8],
+    lo:"",
+    hi:"Suspender irrigação"
+  }
+
+];
+
+
+/* =========================================================
+   CANTEIROS
+========================================================= */
+
+const B = [
+
+  {
+    n:"Estufa 1",
+    icon:"🏠",
+    t:{
+      solo:72,
+      temp:23,
+      ar:62,
+      ph:6.4,
+      nut:75
+    },
+    peak:45,
+    amp:5
+  },
+
+  {
+    n:"Estufa 2",
+    icon:"🏠",
+    t:{
+      solo:58,
+      temp:28,
+      ar:55,
+      ph:6.1,
+      nut:52
+    },
+    peak:55,
+    amp:5
+  },
+
+  {
+    n:"Campo aberto",
+    icon:"🌿",
+    t:{
+      solo:68,
+      temp:22,
+      ar:68,
+      ph:6.6,
+      nut:65
+    },
+    peak:90,
+    amp:7,
+    rain:1
+  }
+
+];
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+const TICK = 10;
+
+let D = [[],[],[]];
+
+let S = 300;
+
+let sel = 0;
+
+let timer = null;
+
+let paused = true;
+
+let LOG = [];
+
+let prev = {};
+
+let EVENT_LOG = [];
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+const cl = (v,a,b) =>
+  Math.min(b,Math.max(a,v));
+
+const r1 = v =>
+  Math.round(v * 10) / 10;
+
+const n = a =>
+  (Math.random()-.5) * a;
+
+const hm = s => {
+
+  const m = Math.floor(s) % 1440;
+
+  return String(Math.floor(m/60)).padStart(2,"0")
+    + ":"
+    + String(m%60).padStart(2,"0");
+};
+
+const COL = {
+  ok:"#39ff8a",
+  warn:"#ffc83d",
+  bad:"#ff4560"
+};
+
+const STATE_TEXT = {
+  ok:"IDEAL",
+  warn:"ATENÇÃO",
+  bad:"CRÍTICO"
+};
+
+
+/* =========================================================
+   SENSOR STATE
+========================================================= */
+
+function st(m,v,d){
+
+  if(
+    m.k === "luz" &&
+    (d.h < 9 || d.h > 16) &&
+    v <= m.w[1]
+  ){
+    return [
+      "ok",
+      (d.h < 5.5 || d.h > 18.5)
+        ? "Noite"
+        : "Ideal"
+    ];
+  }
+
+  if(
+    v >= m.ok[0] &&
+    v <= m.ok[1]
+  ){
+    return ["ok","Ideal"];
+  }
+
+  if(
+    v >= m.w[0] &&
+    v <= m.w[1]
+  ){
+    return ["warn","Atenção"];
+  }
+
+  return ["bad","Crítico"];
+}
+
+
+/* =========================================================
+   SIMULATION ENGINE
+========================================================= */
+
+function nxt(i,p,s){
+
+  const b = B[i];
+
+  const t = b.t;
+
+  const h = (s/60)%24;
+
+  const day =
+    h>6 && h<18
+      ? Math.sin(Math.PI*(h-6)/12)
+      : 0;
+
+  let rain = 0;
+
+  if(b.rain){
+
+    const pr = p ? p.chuva : 0;
+
+    rain =
+      pr > .5
+        ? r1(pr*.7)
+        : (
+          Math.random() <
+          (h>12 && h<19 ? .07 : .015)
+        )
+          ? r1(3+Math.random()*9)
+          : 0;
+  }
+
+  const luz = r1(
+    cl(
+      b.peak *
+      day *
+      (rain ? .35 : 1) *
+      (.9+Math.random()*.2),
+      0,
+      100
+    )
+  );
+
+  const temp = r1(
+    cl(
+      t.temp +
+      b.amp *
+      Math.sin(2*Math.PI*(h-9)/24) -
+      (rain ? 2 : 0) +
+      n(.6),
+      5,
+      45
+    )
+  );
+
+  const ar = r1(
+    cl(
+      t.ar -
+      1.3*(temp-t.temp) +
+      (rain ? 10 : 0) +
+      n(2),
+      0,
+      100
+    )
+  );
+
+  const pv = p || t;
+
+  const solo = r1(
+    cl(
+      pv.solo +
+      (t.solo-pv.solo)*.04 -
+      .35*day*(b.peak>60 ? 1.3 : 1) +
+      rain*.6 +
+      n(.4),
+      0,
+      100
+    )
+  );
+
+  const ph = r1(
+    cl(
+      pv.ph +
+      (t.ph-pv.ph)*.05 +
+      n(.04),
+      4,
+      9
+    )
+  );
+
+  const nut = r1(
+    cl(
+      pv.nut +
+      (t.nut-pv.nut)*.03 -
+      rain*.25 +
+      n(.3),
+      0,
+      100
+    )
+  );
+
+  return {
+    s,
+    h,
+    solo,
+    temp,
+    ar,
+    ph,
+    luz,
+    nut,
+    chuva:rain
+  };
+}
+
+
+/* =========================================================
+   INITIAL DATA
+========================================================= */
+
+function seed(){
+
+  D = [[],[],[]];
+
+  for(let i=0;i<3;i++){
+
+    let p = null;
+
+    for(let j=1;j<=30;j++){
+
+      p = nxt(
+        i,
+        p,
+        j*TICK
+      );
+
+      D[i].push(p);
+    }
+  }
+
+  S = 300;
+
+  LOG = [];
+
+  EVENT_LOG = [];
+
+  prev = {};
+
+  addEvent(
+    "05:00",
+    "🌅",
+    "Dia simulado iniciado."
+  );
+
+  save();
+}
+
+
+/* =========================================================
+   PERSISTENCE
+========================================================= */
+
+function save(){
+
+  try{
+
+    localStorage.setItem(
+      "tomato_cmd_v2",
+      JSON.stringify({
+        version:2,
+        D,
+        S,
+        sel,
+        LOG,
+        EVENT_LOG
+      })
+    );
+
+  }catch(e){}
+}
+
+
+function load(){
+
+  try{
+
+    const raw =
+      localStorage.getItem("tomato_cmd_v2");
+
+    if(!raw){
+
+      seed();
+      return;
+    }
+
+    const o = JSON.parse(raw);
+
+    if(
+      o &&
+      o.D &&
+      o.D.length === 3 &&
+      o.D.every(a => a.length)
+    ){
+
+      D = o.D;
+      S = o.S || 300;
+      sel = o.sel || 0;
+      LOG = o.LOG || [];
+      EVENT_LOG = o.EVENT_LOG || [];
+
+      return;
+    }
+
+  }catch(e){}
+
+  seed();
+}
+
+
+/* =========================================================
+   DATA
+========================================================= */
+
+function last(i){
+
+  return D[i][D[i].length-1];
+}
+
+
+function score(i){
+
+  const l = last(i);
+
+  if(!l) return 0;
+
+  let total = 0;
+
+  M.forEach(m => {
+
+    const c =
+      st(m,l[m.k],l)[0];
+
+    total += {
+      ok:100,
+      warn:50,
+      bad:0
+    }[c];
+
+  });
+
+  return Math.round(
+    total / M.length
+  );
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+function alerts(){
+
+  const a = [];
+
+  B.forEach((b,i)=>{
+
+    const l = last(i);
+
+    M.forEach(m=>{
+
+      const [c] =
+        st(m,l[m.k],l);
+
+      if(c === "ok") return;
+
+      const r =
+        l[m.k] < m.ok[0]
+          ? m.lo
+          : m.hi;
+
+      if(!r) return;
+
+      a.push({
+        c,
+        i,
+        sensor:m,
+        value:l[m.k],
+        x:`${m.n}: ${l[m.k]} ${m.u}`,
+        r,
+        time:hm(l.s)
+      });
+
+    });
+
+  });
+
+  return a.sort((a,b)=>{
+
+    const order = {
+      bad:0,
+      warn:1,
+      ok:2
+    };
+
+    return order[a.c]-order[b.c];
+  });
+}
+
+
+/* =========================================================
+   TRACK CHANGES
+========================================================= */
+
+function track(){
+
+  B.forEach((b,i)=>{
+
+    const l = last(i);
+
+    if(!l) return;
+
+    M.forEach(m=>{
+
+      const [c,t] =
+        st(m,l[m.k],l);
+
+      const key =
+        i + ":" + m.k;
+
+      if(
+        prev[key] !== undefined &&
+        prev[key] !== c
+      ){
+
+        LOG.unshift({
+          s:l.s,
+          c,
+          x:
+            `${b.n} · ${m.n}: ` +
+            `${t} (${l[m.k]} ${m.u})`
+        });
+
+        addEvent(
+          hm(l.s),
+          c === "bad" ? "🔴" : "🟡",
+          `${b.n} · ${m.n}: ${t}`
+        );
+      }
+
+      prev[key] = c;
+
+    });
+
+  });
+
+  LOG = LOG.slice(0,50);
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function addEvent(time,icon,text){
+
+  EVENT_LOG.unshift({
+    time,
+    icon,
+    text
+  });
+
+  EVENT_LOG =
+    EVENT_LOG.slice(0,40);
+}
+
+
+/* =========================================================
+   SPARKLINE
+========================================================= */
+
+function spark(i,m,col){
+
+  const p =
+    D[i].slice(-36);
+
+  if(p.length < 2)
+    return "";
+
+  const lo =
+    Math.min(
+      ...p.map(d=>d[m.k]),
+      m.ok[0]
+    );
+
+  const hi =
+    Math.max(
+      ...p.map(d=>d[m.k]),
+      m.ok[1]
+    );
+
+  const g =
+    (hi-lo)||1;
+
+  const y = v =>
+    29 - ((v-lo)/g)*27;
+
+  const points =
+    p.map((d,j)=>{
+
+      const x =
+        j*120/(p.length-1);
+
+      return (
+        x.toFixed(1) +
+        "," +
+        y(d[m.k]).toFixed(1)
+      );
+
+    }).join(" ");
+
+  return `
+    <svg
+      viewBox="0 0 120 30"
+      preserveAspectRatio="none"
+    >
+      <polyline
+        fill="none"
+        stroke="${col}"
+        stroke-width="2"
+        vector-effect="non-scaling-stroke"
+        points="${points}"
+      />
+    </svg>
+  `;
+}
+
+
+/* =========================================================
+   SENSOR RANGE
+========================================================= */
+
+function rangePosition(m,v){
+
+  const p =
+    ((v-m.min)/(m.max-m.min))*100;
+
+  return cl(p,0,100);
+}
+
+
+/* =========================================================
+   RENDER OVERVIEW
+========================================================= */
+
+function renderOverview(){
+
+  const a = alerts();
+
+  const scores =
+    B.map((b,i)=>score(i));
+
+  const healthy =
+    scores.filter(s=>s>=75).length;
+
+  const critical =
+    a.filter(x=>x.c==="bad").length;
+
+  const average =
+    Math.round(
+      scores.reduce((x,y)=>x+y,0) /
+      scores.length
+    );
+
+  const bestIndex =
+    scores.indexOf(
+      Math.max(...scores)
+    );
+
+  $("healthyBeds").textContent =
+    `${healthy}/${B.length}`;
+
+  $("alertCount").textContent =
+    a.length;
+
+  $("criticalCount").textContent =
+    `${critical} crítico${critical===1?"":"s"}`;
+
+  $("bestBed").textContent =
+    B[bestIndex].n
+      .replace("Estufa ","E")
+      .replace("Campo aberto","Campo");
+
+  $("bestScore").textContent =
+    `${scores[bestIndex]} / 100`;
+
+  $("simTime").textContent =
+    hm(S);
+
+
+  let status = "ok";
+
+  if(critical > 0)
+    status = "bad";
+  else if(a.length > 0)
+    status = "warn";
+
+  const statusMap = {
+
+    ok:{
+      label:"SISTEMA ESTÁVEL",
+      title:"Condições favoráveis",
+      desc:"Todos os parâmetros principais estão dentro do esperado."
+    },
+
+    warn:{
+      label:"ATENÇÃO NECESSÁRIA",
+      title:"Existem condições fora do ideal",
+      desc:"Alguns parâmetros precisam de monitoramento."
+    },
+
+    bad:{
+      label:"INTERVENÇÃO NECESSÁRIA",
+      title:"Há condições críticas",
+      desc:"Verifique os alertas prioritários imediatamente."
+    }
+
+  };
+
+  const data =
+    statusMap[status];
+
+  $("systemStatus").textContent =
+    data.label;
+
+  $("systemTitle").textContent =
+    data.title;
+
+  $("systemDescription").textContent =
+    data.desc;
+
+  $("statusDot").style.color =
+    COL[status];
+
+  $("statusDot").style.background =
+    COL[status];
+
+  $("alertBadge").textContent =
+    a.length;
+
+}
+
+
+/* =========================================================
+   RENDER BEDS
+========================================================= */
+
+function renderBeds(){
+
+  $("units").innerHTML =
+    B.map((b,i)=>{
+
+      const s = score(i);
+
+      const c =
+        s >= 75
+          ? COL.ok
+          : s >= 45
+            ? COL.warn
+            : COL.bad;
+
+      const count =
+        alerts().filter(x=>x.i===i).length;
+
+      return `
+        <div
+          class="bed ${i===sel?"selected":""}"
+          data-i="${i}"
+        >
+
+          <div class="bed-top">
+            <div class="bed-name">
+              ${b.icon} ${b.n}
+            </div>
+          </div>
+
+          <div
+            class="bed-score"
+            style="color:${c}"
+          >
+            ${s}
+            <span>/100</span>
+          </div>
+
+          <div class="bed-status">
+            ${
+              s>=75
+                ? "Condições excelentes"
+                : s>=45
+                  ? "Monitoramento necessário"
+                  : "Intervenção necessária"
+            }
+          </div>
+
+          <div class="score-bar">
+            <i
+              style="
+                width:${s}%;
+                background:${c};
+                box-shadow:0 0 10px ${c};
+              "
+            ></i>
+          </div>
+
+          <div class="alert-count">
+            ${
+              count
+                ? `⚠ ${count} alerta${count===1?"":"s"}`
+                : "✓ Nenhum alerta"
+            }
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+
+
+  document
+    .querySelectorAll(".bed")
+    .forEach(el=>{
+
+      el.onclick = ()=>{
+
+        sel =
+          Number(el.dataset.i);
+
+        render();
+
+        save();
+      };
+
+    });
+
+}
+
+
+/* =========================================================
+   RENDER SENSORS
+========================================================= */
+
+function renderSensors(){
+
+  const l = last(sel);
+
+  const previous =
+    D[sel][D[sel].length-4] ||
+    D[sel][0];
+
+  $("selectedTitle").textContent =
+    `${B[sel].icon} ${B[sel].n}`;
+
+  $("selectedSub").textContent =
+    `MONITORAMENTO · ${hm(S)} · DIA ${Math.floor(S/1440)+1}`;
+
+
+  $("ks").innerHTML =
+    M.map(m=>{
+
+      const v = l[m.k];
+
+      const [c,t] =
+        st(m,v,l);
+
+      const color =
+        COL[c];
+
+      const d =
+        previous
+          ? r1(v-previous[m.k])
+          : 0;
+
+      const threshold =
+        (m.max-m.min)*.008;
+
+      const arrow =
+        d > threshold
+          ? "▲"
+          : d < -threshold
+            ? "▼"
+            : "▬";
+
+      const position =
+        rangePosition(m,v);
+
+      return `
+        <article
+          class="sensor"
+          style="--sensor-color:${color}"
+        >
+
+          <div class="sensor-top">
+
+            <div class="sensor-icon">
+              ${m.icon}
+            </div>
+
+            <span
+              class="badge"
+              style="color:${color}"
+            >
+              ${STATE_TEXT[c]}
+            </span>
+
+          </div>
+
+          <div class="sensor-name">
+            ${m.n}
+          </div>
+
+          <div class="sensor-value">
+            ${v}
+            <small>${m.u}</small>
+          </div>
+
+          <div
+            class="sensor-trend"
+            style="color:${color}"
+          >
+            ${arrow}
+            ${d>0?"+":""}${d}
+            ${m.u}
+          </div>
+
+          <div class="range">
+            <i
+              style="left:${position}%"
+            ></i>
+          </div>
+
+          <div class="range-labels">
+            <span>${m.min}</span>
+            <span>ideal ${m.ok[0]}–${m.ok[1]}</span>
+            <span>${m.max}</span>
+          </div>
+
+          <div class="spark">
+            ${spark(sel,m,color)}
+          </div>
+
+        </article>
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   RENDER ALERTS
+========================================================= */
+
+function renderAlerts(){
+
+  const a = alerts();
+
+  if(!a.length){
+
+    $("al").innerHTML = `
+      <div class="empty">
+        🟢<br>
+        Nenhuma condição fora do ideal.
+      </div>
+    `;
+
+    return;
+  }
+
+  $("al").innerHTML =
+    a.slice(0,10)
+      .map(x=>{
+
+        const color =
+          COL[x.c];
+
+        return `
+          <article
+            class="alert"
+            style="--alert-color:${color}"
+          >
+
+            <div class="alert-top">
+
+              <div
+                class="alert-severity"
+              >
+                ${
+                  x.c==="bad"
+                    ? "🔴 CRÍTICO"
+                    : "🟡 ATENÇÃO"
+                }
+              </div>
+
+              <div class="alert-time">
+                ${x.time}
+              </div>
+
+            </div>
+
+            <div class="alert-title">
+              ${B[x.i].n} · ${x.sensor.icon} ${x.sensor.n}
+            </div>
+
+            <div class="alert-value">
+              ${x.value} ${x.sensor.u}
+            </div>
+
+            <div class="alert-action">
+              Ação recomendada:
+              <b>${x.r}</b>
+            </div>
+
+          </article>
+        `;
+
+      }).join("");
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+function renderTimeline(){
+
+  const hour =
+    (S/60)%24;
+
+  const pos =
+    (hour/24)*100;
+
+  $("nowMarker").style.left =
+    `${pos}%`;
+
+
+  const events =
+    EVENT_LOG
+      .slice()
+      .reverse()
+      .slice(-12);
+
+
+  $("events").innerHTML =
+    events.map(e=>{
+
+      const [h,m] =
+        e.time.split(":").map(Number);
+
+      const minutes =
+        h*60+m;
+
+      const p =
+        minutes/1440*100;
+
+      const color =
+        e.icon.includes("🔴")
+          ? COL.bad
+          : e.icon.includes("🟡")
+            ? COL.warn
+            : COL.cyan;
+
+      return `
+        <div
+          class="time-event"
+          style="
+            left:${p}%;
+            --event-color:${color};
+          "
+          title="${e.text}"
+        >
+          <div class="event-dot"></div>
+          <div class="event-label">
+            ${e.icon} ${e.time}
+          </div>
+        </div>
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   COMPARISON
+========================================================= */
+
+function renderCompare(){
+
+  let html = `
+    <tr>
+      <th>SENSOR</th>
+      ${B.map(b=>`
+        <th>${b.n}</th>
+      `).join("")}
+    </tr>
+  `;
+
+  M.forEach(m=>{
+
+    html += `
+      <tr>
+
+        <th>
+          ${m.icon} ${m.n}
+        </th>
+
+        ${B.map((b,i)=>{
+
+          const d = last(i);
+
+          const [c] =
+            st(m,d[m.k],d);
+
+          return `
+            <td class="value">
+              <span
+                class="sensor-state"
+                style="color:${COL[c]}"
+              >
+                <i class="state-dot"></i>
+                ${d[m.k]} ${m.u}
+              </span>
+            </td>
+          `;
+
+        }).join("")}
+
+      </tr>
+    `;
+
+  });
+
+  $("cmp").innerHTML =
+    html;
+}
+
+
+/* =========================================================
+   LOG
+========================================================= */
+
+function renderLog(){
+
+  if(!EVENT_LOG.length){
+
+    $("lg").innerHTML =
+      `<div class="empty">Nenhum evento registrado.</div>`;
+
+    return;
+  }
+
+  $("lg").innerHTML =
+    EVENT_LOG
+      .slice(0,20)
+      .map(e=>`
+        <div class="log-item">
+
+          <div class="log-time">
+            ${e.time}
+          </div>
+
+          <div class="log-text">
+            ${e.icon} ${e.text}
+          </div>
+
+        </div>
+      `)
+      .join("");
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+function renderForm(){
+
+  $("fb").innerHTML =
+    B.map((b,i)=>`
+      <option value="${i}">
+        ${b.n}
+      </option>
+    `).join("");
+
+
+  $("fi").innerHTML =
+    M.slice(0,3)
+      .map(m=>`
+        <label class="field">
+          ${m.n}
+
+          <input
+            name="${m.k}"
+            type="number"
+            step="0.1"
+            required
+            placeholder="${m.ok[0]}–${m.ok[1]}"
+          >
+        </label>
+      `)
+      .join("");
+
+}
+
+
+/* =========================================================
+   FULL RENDER
+========================================================= */
+
+function render(){
+
+  track();
+
+  renderOverview();
+
+  renderBeds();
+
+  renderSensors();
+
+  renderAlerts();
+
+  renderTimeline();
+
+  renderCompare();
+
+  renderLog();
+
+  updateHeader();
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+function updateHeader(){
+
+  const hour =
+    (S/60)%24;
+
+  $("tm").textContent =
+    hm(S);
+
+  $("dy").textContent =
+    `DAY ${String(Math.floor(S/1440)+1).padStart(2,"0")} · SIMULATION`;
+
+  $("pg").style.width =
+    `${hour/24*100}%`;
+
+  $("simTime").textContent =
+    hm(S);
+
+
+  let icon = "🌙";
+
+  if(hour >= 5.5 && hour < 8)
+    icon = "🌅";
+
+  else if(hour >= 8 && hour < 17)
+    icon = "☀️";
+
+  else if(hour >= 17 && hour < 19)
+    icon = "🌇";
+
+  $("phase").textContent =
+    icon;
+
+  $("play").textContent =
+    paused
+      ? "▶ Continuar"
+      : "⏸ Pausar";
+}
+
+
+/* =========================================================
+   SIMULATION
+========================================================= */
+
+function tick(){
+
+  S += TICK;
+
+  B.forEach((_,i)=>{
+
+    D[i].push(
+      nxt(
+        i,
+        last(i),
+        S
+      )
+    );
+
+    if(D[i].length > 250)
+      D[i].shift();
+
+  });
+
+  save();
+
+  render();
+}
+
+
+function run(){
+
+  clearInterval(timer);
+
+  timer = null;
+
+  if(!paused){
+
+    timer = setInterval(
+      tick,
+      2000 / Number($("sp").value)
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+$("play").onclick = ()=>{
+
+  paused = !paused;
+
+  run();
+
+  render();
+
+};
+
+
+$("sp").onchange = ()=>{
+
+  run();
+
+};
+
+
+$("step").onclick = ()=>{
+
+  paused = true;
+
+  tick();
+
+};
+
+
+$("clr").onclick = ()=>{
+
+  if(
+    !confirm(
+      "Reiniciar o dia simulado?"
+    )
+  ) return;
+
+  seed();
+
+  render();
+
+};
+
+
+/* =========================================================
+   MANUAL DATA
+========================================================= */
+
+$("f").onsubmit = e => {
+
+  e.preventDefault();
+
+  const f =
+    new FormData(e.target);
+
+  const i =
+    Number($("fb").value);
+
+  const current =
+    last(i);
+
+  const o = {
+    ...current,
+    s:S,
+    h:(S/60)%24
+  };
+
+
+  M.slice(0,3)
+    .forEach(m=>{
+
+      const value =
+        parseFloat(
+          f.get(m.k)
+        );
+
+      if(Number.isFinite(value))
+        o[m.k] =
+          r1(
+            cl(
+              value,
+              m.min,
+              m.max
+            )
+          );
+
+    });
+
+
+  D[i].push(o);
+
+  sel = i;
+
+  addEvent(
+    hm(S),
+    "🛠",
+    `${B[i].n}: leitura manual aplicada.`
+  );
+
+  save();
+
+  e.target.reset();
+
+  render();
+
+};
+
+
+/* =========================================================
+   MOBILE NAV
+========================================================= */
+
+document
+  .querySelectorAll(".mobile-nav button")
+  .forEach(btn=>{
+
+    btn.onclick = ()=>{
+
+      document
+        .querySelectorAll(".mobile-nav button")
+        .forEach(b=>
+          b.classList.remove("active")
+        );
+
+      btn.classList.add("active");
+
+      const target =
+        btn.dataset.scroll;
+
+      if(target === "top"){
+
+        window.scrollTo({
+          top:0,
+          behavior:"smooth"
+        });
+
+        return;
+      }
+
+      $(target)?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    };
+
+  });
+
+
+$("focusHistory").onclick = ()=>{
+
+  $("historySection")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+};
+
+
+/* =========================================================
+   START
+========================================================= */
+
+load();
+
+render();
+
+paused = false;
+
+run();
+
+</script>
+
+</body>
+</html>
