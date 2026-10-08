@@ -31,127 +31,12 @@
                     <input type="checkbox" id="Lembre-me">
                     Lembrar senha
                 </label>
-
-                <a href="#" onclick="trocarsenha()">Esqueceu a senha?</a>
             </div>
 
             <input type="button" class="login" value="Entrar" onclick="logar()">
 
         </form>
-
-        <script>
-  
-            window.onload = function () {
-
-                if (localStorage.getItem("lembrar") === "true") {
-
-                    document.getElementById("login").value =
-                        localStorage.getItem("loginlembrado");
-
-                    document.getElementById("senha").value =
-                        localStorage.getItem("senhalembrado");
-
-                    document.getElementById("Lembre-me").checked = true;
-                }
-            }
-
-            function logar() {
-
-                let login = document.getElementById("login").value;
-                let senha = document.getElementById("senha").value;
-                let lembrar = document.getElementById("Lembre-me").checked;
-
-
-                if (login === "admin@gmail.com" && senha === "1234") {
-
-                    localStorage.setItem("tipoUsuario", "admin");
-
-                    if (lembrar) {
-
-                        localStorage.setItem("lembrar", "true");
-                        localStorage.setItem("loginlembrado", login);
-                        localStorage.setItem("senhalembrado", senha);
-
-                    } else {
-
-                        localStorage.removeItem("lembrar");
-                        localStorage.removeItem("loginlembrado");
-                        localStorage.removeItem("senhalembrado");
-                    }
-
-                    window.location.href = "tomatrixx.html";
-
-                    return;
-                }
-
-
-                let usuarioSalvo = localStorage.getItem("usuarioCadastro");
-                let senhaSalva = localStorage.getItem("senhaCadastro");
-
-
-                if (usuarioSalvo === null || senhaSalva === null) {
-
-                    alert("Nenhum usuário cadastrado!");
-                    return;
-                }
-
-
-                if (login === usuarioSalvo && senha === senhaSalva) {
-
-                    localStorage.setItem("tipoUsuario", "usuario");
-
-                    if (lembrar) {
-
-                        localStorage.setItem("lembrar", "true");
-                        localStorage.setItem("loginlembrado", login);
-                        localStorage.setItem("senhalembrado", senha);
-
-                    } else {
-
-                        localStorage.removeItem("lembrar");
-                        localStorage.removeItem("loginlembrado");
-                        localStorage.removeItem("senhalembrado");
-                    }
-
-                    window.location.href = "tomatrix.html";
-
-                } else {
-
-                    alert("Usuário ou senha incorretos!");
-                }
-            }
-
-        </script>
-    </main>
-
-
-    <script>
-
-        function mostrarsenha() {
-
-            const input = document.getElementById('senha');
-            const icone = document.getElementById('btn-senha');
-
-
-            if (input.type === 'password') {
-
-                input.type = "text";
-
-                icone.classList.remove("bx-show");
-                icone.classList.add("bx-hide");
-
-            } else {
-
-                input.type = "password";
-
-                icone.classList.remove("bx-hide");
-                icone.classList.add("bx-show");
-            }
-
-        }
-
-    </script>
-
+<script src="index.js"></script>
 </body>
 
 </html>
