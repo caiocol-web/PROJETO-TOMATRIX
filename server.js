@@ -1,13 +1,35 @@
 const express = require("express");
 const { Pool } = require("pg");
 
-const pool = new Pool({
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "caio1201",
-  database: "tomatrix",
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    })
+  : new Pool({
+      host: "localhost",
+      port: 5432,
+      user: "postgres",
+      password: "caio1201",
+      database: "tomatrix",
+    });
+
+async function criarTabelas() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS canteiros (
+      id   SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS leituras (
+      id          SERIAL PRIMARY KEY,
+      canteiro_id INTEGER NOT NULL REFERENCES canteiros(id) ON DELETE CASCADE,
+      quando      TEXT NOT NULL,
+      valores     JSONB NOT NULL
+    );
+  `);
+}
+criarTabelas().catch((erro) => console.error("Erro ao criar tabelas:", erro));
+
 
 const app = express();
 app.use(express.json());
@@ -60,4 +82,5 @@ app.delete("/api/canteiros/:id/leituras", async (req, res) => {
   res.sendStatus(204);
 });
 
-app.listen(3000, () => console.log("Rodando em http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Rodando na porta " + PORT));
