@@ -442,10 +442,7 @@ function renderizarHistorico() {
     linhas += `
   <tr>
     <td>
-      ${new Date(leitura.criadoEm).toLocaleString("pt-BR", {
-        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
-      })}
-      ${leitura.quando ? `<br><small>${escaparHtml(leitura.quando)}</small>` : ""}
+      ${leitura.quando ? `<small>${escaparHtml(leitura.quando)}</small>` : new Date(leitura.criadoEm).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", }) }
     </td>
     ${celulas}
     <td><button class="btn-secundario" data-id="${leitura.id}">x</button></td>
@@ -493,11 +490,6 @@ async function salvarLeitura() {
   }
 
   const observacao = porId("observacao").value.trim();
-
-await chamarApi(`/api/canteiros/${canteiroAtual().id}/leituras`, "POST", {
-  quando: observacao,
-  valores,
-});
 
 const dataAtual = new Date().toLocaleString("pt-BR", {
   day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
