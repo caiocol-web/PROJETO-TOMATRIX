@@ -26,6 +26,8 @@ async function criarTabelas() {
       quando      TEXT NOT NULL,
       valores     JSONB NOT NULL
     );
+    ALTER TABLE leituras
+  ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT now();
   `);
 }
 criarTabelas().catch((erro) => console.error("Erro ao criar tabelas:", erro));
@@ -37,14 +39,21 @@ app.use(express.static("public"));
 
 app.get("/api/canteiros", async (req, res) => {
   const canteiros = await pool.query("SELECT id, nome FROM canteiros ORDER BY id");
-  const leituras = await pool.query("SELECT id, canteiro_id, quando, valores FROM leituras ORDER BY id");
+  const leituras = await pool.query(
+    "SELECT id, canteiro_id, quando, valores, criado_em FROM leituras ORDER BY criado_em, id"
+  );
 
   res.json(canteiros.rows.map((c) => ({
     id: c.id,
     nome: c.nome,
     leituras: leituras.rows
       .filter((l) => l.canteiro_id === c.id)
-      .map((l) => ({ id: l.id, quando: l.quando, valores: l.valores })),
+      .map((l) => ({
+        id: l.id,
+        quando: l.quando,
+        valores: l.valores,
+        criadoEm: l.criado_em,
+      })),
   })));
 });
 
