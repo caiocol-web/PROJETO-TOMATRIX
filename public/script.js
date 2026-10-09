@@ -499,6 +499,9 @@ await chamarApi(`/api/canteiros/${canteiroAtual().id}/leituras`, "POST", {
   valores,
 });
 
+const dataAtual = new Date().toLocaleString("pt-BR", {
+  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+});
   await chamarApi(`/api/canteiros/${canteiroAtual().id}/leituras`, "POST", {
     quando: observacao || dataAtual,
     valores,
