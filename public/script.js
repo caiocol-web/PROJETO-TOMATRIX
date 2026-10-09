@@ -119,7 +119,7 @@ async function executar(acao) {
     await acao();
   } catch (erro) {
     console.error(erro);
-    alert("Não foi possível falar com o servidor. Verifique se o 'node server.js' está rodando.");
+    alert("Algo deu errado: " + erro.message);
   }
 }
 
