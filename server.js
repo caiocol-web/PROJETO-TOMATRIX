@@ -14,6 +14,15 @@ const pool = process.env.DATABASE_URL
       database: "tomatrix",
     });
 
+// Estufas fixas do sistema.
+// "cultura" liga a estufa às faixas ideais do script.js (não mude esse código).
+// "nome" é o texto que aparece no painel e pode ser alterado à vontade.
+const ESTUFAS = [
+  { cultura: "tomate", nome: "Estufa de Tomate" },
+  { cultura: "alface", nome: "Estufa de Alface" },
+  { cultura: "agriao", nome: "Estufa de Agrião" },
+];
+
 async function criarTabelas() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS canteiros (
@@ -26,19 +35,30 @@ async function criarTabelas() {
       quando      TEXT NOT NULL,
       valores     JSONB NOT NULL
     );
-    ALTER TABLE leituras
-  ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT now();
+    ALTER TABLE leituras ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT now();
+    ALTER TABLE canteiros ADD COLUMN IF NOT EXISTS cultura TEXT;
+    CREATE UNIQUE INDEX IF NOT EXISTS canteiros_cultura_unico ON canteiros (cultura);
   `);
+
+  // Garante que as três estufas existam (e atualiza o nome se você mudar acima)
+  for (const estufa of ESTUFAS) {
+    await pool.query(
+      "INSERT INTO canteiros (nome, cultura) VALUES ($1, $2) ON CONFLICT (cultura) DO UPDATE SET nome = EXCLUDED.nome",
+      [estufa.nome, estufa.cultura]
+    );
+  }
 }
 criarTabelas().catch((erro) => console.error("Erro ao criar tabelas:", erro));
-
 
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// Lista só as estufas fixas, com as leituras de cada uma
 app.get("/api/canteiros", async (req, res) => {
-  const canteiros = await pool.query("SELECT id, nome FROM canteiros ORDER BY id");
+  const canteiros = await pool.query(
+    "SELECT id, nome, cultura FROM canteiros WHERE cultura IS NOT NULL ORDER BY id"
+  );
   const leituras = await pool.query(
     "SELECT id, canteiro_id, quando, valores, criado_em FROM leituras ORDER BY criado_em, id"
   );
@@ -46,6 +66,7 @@ app.get("/api/canteiros", async (req, res) => {
   res.json(canteiros.rows.map((c) => ({
     id: c.id,
     nome: c.nome,
+    cultura: c.cultura,
     leituras: leituras.rows
       .filter((l) => l.canteiro_id === c.id)
       .map((l) => ({
@@ -55,21 +76,6 @@ app.get("/api/canteiros", async (req, res) => {
         criadoEm: l.criado_em,
       })),
   })));
-});
-
-app.post("/api/canteiros", async (req, res) => {
-  const r = await pool.query("INSERT INTO canteiros (nome) VALUES ($1) RETURNING id, nome", [req.body.nome]);
-  res.json({ ...r.rows[0], leituras: [] });
-});
-
-app.put("/api/canteiros/:id", async (req, res) => {
-  await pool.query("UPDATE canteiros SET nome = $1 WHERE id = $2", [req.body.nome, req.params.id]);
-  res.sendStatus(204);
-});
-
-app.delete("/api/canteiros/:id", async (req, res) => {
-  await pool.query("DELETE FROM canteiros WHERE id = $1", [req.params.id]);
-  res.sendStatus(204);
 });
 
 app.post("/api/canteiros/:id/leituras", async (req, res) => {

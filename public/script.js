@@ -78,6 +78,66 @@ const SENSORES = [
   },
 ];
 
+// =====================================================
+// ESTUFAS FIXAS E FAIXAS IDEAIS DE CADA CULTURA
+// =====================================================
+// Valores de referência típicos para cultivo protegido. Ajuste conforme a variedade
+// e a orientação de um técnico agrícola.
+const CULTURAS = {
+  tomate: {
+    icone: "🍅",
+    faixas: {
+      solo:  { ideal: [60, 80],   aceitavel: [45, 90] },
+      temp:  { ideal: [18, 28],   aceitavel: [12, 34] },
+      ar:    { ideal: [50, 70],   aceitavel: [35, 85] },
+      ph:    { ideal: [6, 6.8],   aceitavel: [5.5, 7.2] },
+      luz:   { ideal: [30, 60],   aceitavel: [15, 80] },
+      nut:   { ideal: [60, 90],   aceitavel: [40, 100] },
+      chuva: { ideal: [0, 2],     aceitavel: [0, 8] },
+    },
+  },
+  alface: {
+    icone: "🥬",
+    faixas: {
+      solo:  { ideal: [65, 85],   aceitavel: [50, 92] },
+      temp:  { ideal: [15, 22],   aceitavel: [8, 28] },
+      ar:    { ideal: [60, 80],   aceitavel: [45, 90] },
+      ph:    { ideal: [6, 7],     aceitavel: [5.5, 7.5] },
+      luz:   { ideal: [20, 40],   aceitavel: [10, 60] },
+      nut:   { ideal: [60, 85],   aceitavel: [40, 95] },
+      chuva: { ideal: [0, 2],     aceitavel: [0, 8] },
+    },
+  },
+  agriao: {
+    icone: "🌿",
+    faixas: {
+      solo:  { ideal: [85, 100],  aceitavel: [70, 100] },
+      temp:  { ideal: [10, 20],   aceitavel: [5, 26] },
+      ar:    { ideal: [70, 90],   aceitavel: [55, 95] },
+      ph:    { ideal: [6.5, 7.5], aceitavel: [6, 8] },
+      luz:   { ideal: [15, 35],   aceitavel: [8, 50] },
+      nut:   { ideal: [60, 85],   aceitavel: [40, 95] },
+      chuva: { ideal: [0, 5],     aceitavel: [0, 12] },
+    },
+  },
+};
+
+// Devolve o sensor já com as faixas ideais da cultura daquela estufa
+function sensorDoCanteiro(sensor, canteiro) {
+  const cultura = CULTURAS[canteiro.cultura];
+  const faixas = cultura && cultura.faixas[sensor.id];
+  return faixas ? { ...sensor, ...faixas } : sensor;
+}
+
+function sensoresDo(canteiro) {
+  return SENSORES.map((sensor) => sensorDoCanteiro(sensor, canteiro));
+}
+
+function iconeDaCultura(canteiro) {
+  const cultura = CULTURAS[canteiro.cultura];
+  return cultura ? cultura.icone : "🌱";
+}
+
 const ROTULOS_STATUS = { ok: "Ideal", atencao: "Atenção", critico: "Crítico" };
 const PONTOS_STATUS = { ok: 100, atencao: 50, critico: 0 };
 
@@ -100,12 +160,7 @@ async function chamarApi(url, metodo = "GET", corpo) {
   return resposta.json();
 }
 async function carregarDados() {
-  let canteiros = await chamarApi("/api/canteiros");
-
-  if (canteiros.length === 0) {
-    await chamarApi("/api/canteiros", "POST", { nome: "Estufa 1" });
-    canteiros = await chamarApi("/api/canteiros");
-  }
+  const canteiros = await chamarApi("/api/canteiros");
 
   dados.canteiros = canteiros;
   if (dados.selecionado >= canteiros.length) {
@@ -167,7 +222,7 @@ function obterSerieDoSensor(canteiro, sensorId) {
 
 function calcularNota(canteiro) {
   const valoresAtuais = obterValoresAtuais(canteiro);
-  const sensoresComLeitura = SENSORES.filter((sensor) => valoresAtuais[sensor.id] !== undefined);
+  const sensoresComLeitura = sensoresDo(canteiro).filter((sensor) => valoresAtuais[sensor.id] !== undefined);
 
   if (sensoresComLeitura.length === 0) return null;
 
@@ -194,6 +249,7 @@ function tituloDaNota(nota) {
 }
 
 function criarCardSensor(canteiro, sensor, titulo) {
+  sensor = sensorDoCanteiro(sensor, canteiro);
   const serie = obterSerieDoSensor(canteiro, sensor.id);
   const nomeExibido = escaparHtml(titulo || sensor.nome);
 
@@ -235,15 +291,10 @@ function renderizarAbas() {
 
     html += `
       <button class="aba ${selecionado ? "ativa" : ""}" data-indice="${indice}">
-        <span class="bolinha ${corBolinha}"></span>${escaparHtml(canteiro.nome)}
+        <span class="bolinha ${corBolinha}"></span>${iconeDaCultura(canteiro)} ${escaparHtml(canteiro.nome)}
       </button>`;
-
-    if (selecionado) {
-      html += `<button class="aba aba-remover" id="btn-remover-aba">✕ Remover</button>`;
-    }
   });
 
-  html += `<button class="aba aba-novo" id="btn-novo">+ Canteiro</button>`;
   porId("abas").innerHTML = html;
 
   document.querySelectorAll(".aba[data-indice]").forEach((botao) => {
@@ -252,14 +303,12 @@ function renderizarAbas() {
       renderizarTudo();
     });
   });
-  porId("btn-remover-aba").addEventListener("click", () => executar(removerCanteiro));
-  porId("btn-novo").addEventListener("click", () => executar(adicionarCanteiro));
 }
 
 function renderizarCampos() {
   porId("nome-canteiro").textContent = canteiroAtual().nome;
 
-  porId("campos").innerHTML = SENSORES.map((sensor) => {
+  porId("campos").innerHTML = sensoresDo(canteiroAtual()).map((sensor) => {
     const unidade = sensor.unidade ? ` (${sensor.unidade})` : "";
     return `
       <label>
@@ -272,7 +321,7 @@ function renderizarCampos() {
 
   document.querySelectorAll("#campos input").forEach((campo) => {
     campo.addEventListener("input", () => {
-      const sensor = SENSORES.find((s) => s.id === campo.dataset.sensor);
+      const sensor = sensoresDo(canteiroAtual()).find((s) => s.id === campo.dataset.sensor);
       const dica = porId("dica-" + sensor.id);
 
       if (campo.value === "") {
@@ -301,7 +350,7 @@ function renderizarSituacao() {
   const valoresAtuais = obterValoresAtuais(canteiro);
 
   let acoesHtml = "";
-  for (const sensor of SENSORES) {
+  for (const sensor of sensoresDo(canteiro)) {
     const valor = valoresAtuais[sensor.id];
     if (valor === undefined) continue;
 
@@ -386,7 +435,7 @@ function renderizarHistorico() {
   for (let indice = leituras.length - 1; indice >= 0; indice--) {
     const leitura = leituras[indice];
 
-    const celulas = SENSORES.map((sensor) => {
+    const celulas = sensoresDo(canteiroAtual()).map((sensor) => {
       const valor = leitura.valores[sensor.id];
       if (valor === undefined) return "<td>-</td>";
       return `<td class="${calcularStatus(sensor, valor)}">${valor}</td>`;
@@ -462,39 +511,6 @@ const dataAtual = new Date().toLocaleString("pt-BR", {
   mostrarMensagem("Leitura salva.", "ok");
 }
 
-async function adicionarCanteiro() {
-  const nome = prompt("Nome do novo canteiro:");
-  if (!nome || !nome.trim()) return;
-
-  const novo = await chamarApi("/api/canteiros", "POST", { nome: nome.trim() });
-  await carregarDados();
-
-  dados.selecionado = dados.canteiros.findIndex((canteiro) => canteiro.id === novo.id);
-  renderizarTudo();
-}
-
-async function renomearCanteiro() {
-  const nome = prompt("Novo nome:", canteiroAtual().nome);
-  if (!nome || !nome.trim()) return;
-
-  await chamarApi(`/api/canteiros/${canteiroAtual().id}`, "PUT", { nome: nome.trim() });
-  await carregarDados();
-  renderizarTudo();
-}
-
-async function removerCanteiro() {
-  if (dados.canteiros.length < 2) {
-    alert("Mantenha pelo menos um canteiro.");
-    return;
-  }
-  if (!confirm("Remover " + canteiroAtual().nome + " e todas as leituras dele?")) return;
-
-  await chamarApi(`/api/canteiros/${canteiroAtual().id}`, "DELETE");
-  dados.selecionado = 0;
-  await carregarDados();
-  renderizarTudo();
-}
-
 async function apagarLeitura(idLeitura) {
   await chamarApi(`/api/leituras/${idLeitura}`, "DELETE");
   await carregarDados();
@@ -510,8 +526,6 @@ async function limparHistorico() {
 }
 
 porId("btn-salvar").addEventListener("click", () => executar(salvarLeitura));
-porId("btn-renomear").addEventListener("click", () => executar(renomearCanteiro));
-porId("btn-remover").addEventListener("click", () => executar(removerCanteiro));
 porId("btn-limpar").addEventListener("click", () => executar(limparHistorico));
 
 async function iniciar() {
