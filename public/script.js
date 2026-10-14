@@ -1,4 +1,3 @@
-
 const SENSORES = [
   {
     id: "solo",
@@ -194,51 +193,6 @@ function tituloDaNota(nota) {
   return titulos[statusDaNota(nota)];
 }
 
-function criarMedidor(sensor, valor, status) {
-  const [escalaMin, escalaMax] = sensor.escala;
-
-  function emPorcentagem(numero) {
-    const porcentagem = ((numero - escalaMin) / (escalaMax - escalaMin)) * 100;
-    return Math.max(0, Math.min(100, porcentagem));
-  }
-
-  const inicioIdeal = emPorcentagem(sensor.ideal[0]);
-  const fimIdeal = emPorcentagem(sensor.ideal[1]);
-
-  return `
-    <div class="medidor">
-      <i class="medidor-ideal" style="left:${inicioIdeal}%; width:${fimIdeal - inicioIdeal}%"></i>
-      <b class="medidor-marcador" style="left:${emPorcentagem(valor)}%; background:var(--cor-${status})"></b>
-    </div>
-    <div class="medidor-legenda">
-      <span>${escalaMin}</span>
-      <span>ideal ${sensor.ideal[0]}–${sensor.ideal[1]}</span>
-      <span>${escalaMax}</span>
-    </div>`;
-}
-
-function criarGraficoLinha(valores, status) {
-  if (valores.length < 2) return "";
-
-  const minimo = Math.min(...valores);
-  const maximo = Math.max(...valores);
-  const amplitude = maximo - minimo || 1;
-
-  const pontos = valores
-    .map((valor, indice) => {
-      const x = (indice * 100) / (valores.length - 1);
-      const y = 26 - ((valor - minimo) / amplitude) * 24;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-
-  return `
-    <svg class="grafico-linha" viewBox="0 0 100 28" preserveAspectRatio="none">
-      <polyline fill="none" stroke="var(--cor-${status})" stroke-width="2"
-                vector-effect="non-scaling-stroke" points="${pontos}" />
-    </svg>`;
-}
-
 function criarCardSensor(canteiro, sensor, titulo) {
   const serie = obterSerieDoSensor(canteiro, sensor.id);
   const nomeExibido = escaparHtml(titulo || sensor.nome);
@@ -267,8 +221,7 @@ function criarCardSensor(canteiro, sensor, titulo) {
       </div>
       <div class="sensor-nome">${nomeExibido}</div>
       <div class="sensor-valor">${valor}<small> ${sensor.unidade}</small></div>
-      ${criarMedidor(sensor, valor, status)}
-      ${criarGraficoLinha(serie.slice(-12), status)}
+      <div class="sensor-ideal">ideal ${sensor.ideal[0]}–${sensor.ideal[1]}</div>
     </div>`;
 }
 
