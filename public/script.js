@@ -509,6 +509,7 @@ const dataAtual = new Date().toLocaleString("pt-BR", {
   renderizarComparacao();
   renderizarHistorico();
   mostrarMensagem("Leitura salva.", "ok");
+  await atualizarPainelSequencia();
 }
 
 async function apagarLeitura(idLeitura) {
@@ -527,11 +528,97 @@ async function limparHistorico() {
 
 porId("btn-salvar").addEventListener("click", () => executar(salvarLeitura));
 porId("btn-limpar").addEventListener("click", () => executar(limparHistorico));
+// =====================================
+// ATUALIZAÇÃO DO PAINEL DO TOMATE
+// =====================================
+
+async function atualizarPainelSequencia() {
+  const tomate = await chamarApi("/api/sequencia");
+
+  const mascote = porId("tomate-mascote");
+  const semanas = porId("sequencia-semanas");
+  const mensagem = porId("mensagem-sequencia");
+  const estado = porId("estado-tomate");
+
+  const vidas = [
+    porId("vida-1"),
+    porId("vida-2"),
+    porId("vida-3")
+  ];
+
+  semanas.textContent =
+    `${tomate.semanas_consecutivas} ${
+      tomate.semanas_consecutivas === 1 ? "semana" : "semanas"
+    }`;
+
+  vidas.forEach((vida, indice) => {
+    vida.classList.toggle("vida-perdida", indice >= tomate.vidas);
+  });
+
+  mascote.classList.remove(
+    "tomate-murcho",
+    "tomate-muito-murcho",
+    "tomate-perdido"
+  );
+
+  if (tomate.perdido || tomate.vidas <= 0) {
+    mascote.textContent = "🥀";
+    mascote.classList.add("tomate-perdido");
+    estado.textContent = "Tomate perdido";
+    mensagem.textContent =
+      "Registre uma nova leitura para começar outra sequência.";
+    return;
+  }
+
+  if (!tomate.ultima_semana) {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Registre sua primeira leitura para iniciar a sequência!";
+    return;
+  }
+
+  const agora = new Date();
+  const inicioSemana = new Date(agora);
+  inicioSemana.setHours(0, 0, 0, 0);
+  inicioSemana.setDate(
+    inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7)
+  );
+
+  const ultimaSemana = String(tomate.ultima_semana).slice(0, 10);
+  const semanaAtual = inicioSemana.toISOString().slice(0, 10);
+  const atividadeNestaSemana = ultimaSemana === semanaAtual;
+
+  if (atividadeNestaSemana) {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Boa! Você já cuidou do seu tomate nesta semana.";
+  } else if (tomate.vidas === 1) {
+    mascote.textContent = "🍅";
+    mascote.classList.add("tomate-muito-murcho");
+    estado.textContent = "Última vida!";
+    mensagem.textContent =
+      "Registre uma leitura para cuidar do tomate!";
+  } else if (tomate.vidas === 2) {
+    mascote.textContent = "🍅";
+    mascote.classList.add("tomate-murcho");
+    estado.textContent = "Tomate murchando";
+    mensagem.textContent =
+      "Não deixe outra semana passar sem uma leitura!";
+  } else {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Registre uma leitura nesta semana para manter a sequência.";
+  }
+}
 
 async function iniciar() {
   try {
     await carregarDados();
     renderizarTudo();
+    await atualizarPainelSequencia();
   } catch (erro) {
     console.error(erro);
     mostrarMensagem(
