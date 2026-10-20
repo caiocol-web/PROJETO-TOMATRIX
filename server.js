@@ -1,13 +1,14 @@
 const express = require("express");
 const { Pool } = require("pg");
+const registrarSequencia = require("./public/sequencia-api.js");
 
 // Conexão com o PostgreSQL instalado neste computador
 const pool = new Pool({
-  host: process.env.PGHOST || "localhost",
-  port: process.env.PGPORT || 5432,
-  user: process.env.PGUSER || "postgres",
-  password: process.env.PGPASSWORD || "caio1201",
-  database: process.env.PGDATABASE || "tomatrix",
+  host: "localhost",
+  port: 5432,
+  user: "postgres",
+  password: "caio1201",
+  database: "tomatrix",
 });
 
 // Estufas fixas do sistema.
@@ -92,5 +93,8 @@ app.delete("/api/canteiros/:id/leituras", async (req, res) => {
   await pool.query("DELETE FROM leituras WHERE canteiro_id = $1", [req.params.id]);
   res.sendStatus(204);
 });
+
+// Sequência semanal da horta
+registrarSequencia(app, pool);
 
 app.listen(3000, () => console.log("Rodando em http://localhost:3000"));

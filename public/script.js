@@ -166,6 +166,11 @@ async function carregarDados() {
   if (dados.selecionado >= canteiros.length) {
     dados.selecionado = 0;
   }
+
+  // Atualiza o painel "Minha sequência" sempre que os dados são recarregados
+  if (typeof atualizarPainelSequencia === "function") {
+    atualizarPainelSequencia();
+  }
 }
 
 async function executar(acao) {

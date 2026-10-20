@@ -1,0 +1,138 @@
+/* =====================================
+   SEQUÊNCIA DA HORTA ("Minha sequência")
+   Usa as cores do style.css; os valores depois da vírgula só valem se a variável não existir.
+===================================== */
+
+/* Telas pequenas e médias: o painel vira um cartão em linha, acima do conteúdo */
+.painel-sequencia {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
+  width: calc(100% - 32px);
+  max-width: 780px;
+  margin: 20px auto 0;
+  padding: 18px 16px;
+  text-align: center;
+  border: 2px solid var(--borda, rgba(20, 34, 26, 0.2));
+  border-radius: 18px;
+  background: var(--vidro, rgba(255, 255, 255, 0.72));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgba(20, 34, 26, 0.08);
+}
+
+.painel-sequencia h2 {
+  width: 100%;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.tomate-mascote {
+  font-size: 3rem;
+  line-height: 1.3;
+  transition: transform 0.3s, filter 0.3s;
+}
+
+.tomate-mascote:hover {
+  transform: scale(1.1);
+}
+
+.sequencia-semanas {
+  margin: 4px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.vidas-tomate {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 4px 0;
+  font-size: 1.3rem;
+}
+
+.vida-perdida {
+  filter: grayscale(1);
+  opacity: 0.25;
+}
+
+.mensagem-sequencia {
+  margin: 4px 0;
+  color: var(--texto-suave, #5b6b61);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.estado-tomate {
+  margin: 4px 0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(31, 138, 59, 0.12);
+  color: var(--cor-ok, #1f8a3b);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.estado-tomate.atencao {
+  background: rgba(154, 100, 16, 0.14);
+  color: var(--cor-atencao, #9a6410);
+}
+
+.estado-tomate.critico {
+  background: rgba(208, 59, 42, 0.12);
+  color: var(--cor-critico, #d03b2a);
+}
+
+/* Estados do tomate */
+.tomate-murcho {
+  filter: grayscale(0.45);
+  transform: rotate(-8deg);
+}
+
+.tomate-muito-murcho {
+  filter: grayscale(0.8);
+  transform: rotate(-16deg);
+}
+
+.tomate-perdido {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+/* Telas largas: o painel fica fixo na lateral e o conteúdo continua centralizado
+   (a partir de 1240px sobra espaço dos dois lados dos 780px do conteúdo) */
+@media (min-width: 1240px) {
+  .painel-sequencia {
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    display: block;
+    width: 190px;
+    margin: 0;
+    padding: 20px 14px;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .painel-sequencia h2 {
+    margin-bottom: 14px;
+  }
+
+  .tomate-mascote {
+    font-size: 4.5rem;
+  }
+
+  .sequencia-semanas {
+    margin: 8px 0;
+  }
+
+  .vidas-tomate {
+    margin: 12px 0;
+  }
+
+  .estado-tomate {
+    margin-top: 10px;
+    padding: 6px;
+  }
+}
