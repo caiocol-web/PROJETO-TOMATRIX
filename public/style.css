@@ -588,8 +588,10 @@ th {
 }
 
 @media (min-width: 1001px) {
-  main {
-    margin-left: 220px;
-    margin-right: 24px;
-  }
+    main {
+        width: calc(100% - 244px);
+        max-width: 780px;
+        margin-left: auto;
+        margin-right: 12px;
+    }
 }
