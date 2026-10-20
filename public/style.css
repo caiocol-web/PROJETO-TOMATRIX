@@ -590,7 +590,7 @@ th {
 @media (min-width: 1001px) {
     main {
         max-width: 780px;
-        margin-left: 220px;
+        margin-left: 280px;
         margin-right: auto;
     }
 }
