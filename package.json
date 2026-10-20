@@ -20,7 +20,12 @@
   },
   "homepage": "https://github.com/caiocol-web/PROJETO-TOMATRIX#readme",
   "dependencies": {
+    "dotenv": "^18.0.8",
     "express": "^5.2.1",
     "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "nodemon": "^3.1.14"
   }
 }
