@@ -3,11 +3,11 @@ const { Pool } = require("pg");
 
 // Conexão com o PostgreSQL instalado neste computador
 const pool = new Pool({
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "caio1201",
-  database: "tomatrix",
+  host: process.env.PGHOST || "localhost",
+  port: process.env.PGPORT || 5432,
+  user: process.env.PGUSER || "postgres",
+  password: process.env.PGPASSWORD || "caio1201",
+  database: process.env.PGDATABASE || "tomatrix",
 });
 
 // Estufas fixas do sistema.
