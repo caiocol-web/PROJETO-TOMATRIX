@@ -1,0 +1,11 @@
+
+Infraestrutura minima
+ - Node.js : https://nodejs.org/pt-br
+ - postgresSQL https://www.postgresql.org/download/windows/
+
+1 - npm install
+
+2 - executar npm start ou executar dadno dois clicks no iniciar-tomatrix.bat
+
+
+Abrir a paltaforma: http://localhost:3000/tomatrix.html

@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
-title TOMATRIX - Servidor local
-node server.js
-pause
+cd /d C:\Users\caioc\Downloads\PROJETO-TOMATRIX
+start /min "Tomatrix servidor" cmd /c node server.js
+timeout /t 2 >nul
+start http://localhost:3000

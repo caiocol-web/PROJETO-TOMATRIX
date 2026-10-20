@@ -24,7 +24,7 @@ function logar() {
             localStorage.removeItem("senhalembrado");
         }
 
-        window.location.href = "tomatrixx.html";
+        window.location.href = "tomatrix.html";
     } else {
         alert("Usuário ou senha incorretos!");
     }

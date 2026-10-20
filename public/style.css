@@ -588,9 +588,8 @@ th {
 }
 
 @media (min-width: 1001px) {
-    main {
-        max-width: 780px;
-        margin-left: 590px;
-        margin-right: auto;
-    }
+  main {
+    margin-left: 220px;
+    margin-right: 24px;
+  }
 }

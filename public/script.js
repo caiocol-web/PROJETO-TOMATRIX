@@ -87,37 +87,37 @@ const CULTURAS = {
   tomate: {
     icone: "🍅",
     faixas: {
-      solo:  { ideal: [60, 80],   aceitavel: [45, 90] },
-      temp:  { ideal: [18, 28],   aceitavel: [12, 34] },
-      ar:    { ideal: [50, 70],   aceitavel: [35, 85] },
-      ph:    { ideal: [6, 6.8],   aceitavel: [5.5, 7.2] },
-      luz:   { ideal: [30, 60],   aceitavel: [15, 80] },
-      nut:   { ideal: [60, 90],   aceitavel: [40, 100] },
-      chuva: { ideal: [0, 2],     aceitavel: [0, 8] },
+      solo: { ideal: [60, 80], aceitavel: [45, 90] },
+      temp: { ideal: [18, 28], aceitavel: [12, 34] },
+      ar: { ideal: [50, 70], aceitavel: [35, 85] },
+      ph: { ideal: [6, 6.8], aceitavel: [5.5, 7.2] },
+      luz: { ideal: [30, 60], aceitavel: [15, 80] },
+      nut: { ideal: [60, 90], aceitavel: [40, 100] },
+      chuva: { ideal: [0, 2], aceitavel: [0, 8] },
     },
   },
   alface: {
     icone: "🥬",
     faixas: {
-      solo:  { ideal: [65, 85],   aceitavel: [50, 92] },
-      temp:  { ideal: [15, 22],   aceitavel: [8, 28] },
-      ar:    { ideal: [60, 80],   aceitavel: [45, 90] },
-      ph:    { ideal: [6, 7],     aceitavel: [5.5, 7.5] },
-      luz:   { ideal: [20, 40],   aceitavel: [10, 60] },
-      nut:   { ideal: [60, 85],   aceitavel: [40, 95] },
-      chuva: { ideal: [0, 2],     aceitavel: [0, 8] },
+      solo: { ideal: [65, 85], aceitavel: [50, 92] },
+      temp: { ideal: [15, 22], aceitavel: [8, 28] },
+      ar: { ideal: [60, 80], aceitavel: [45, 90] },
+      ph: { ideal: [6, 7], aceitavel: [5.5, 7.5] },
+      luz: { ideal: [20, 40], aceitavel: [10, 60] },
+      nut: { ideal: [60, 85], aceitavel: [40, 95] },
+      chuva: { ideal: [0, 2], aceitavel: [0, 8] },
     },
   },
   agriao: {
     icone: "🌿",
     faixas: {
-      solo:  { ideal: [85, 100],  aceitavel: [70, 100] },
-      temp:  { ideal: [10, 20],   aceitavel: [5, 26] },
-      ar:    { ideal: [70, 90],   aceitavel: [55, 95] },
-      ph:    { ideal: [6.5, 7.5], aceitavel: [6, 8] },
-      luz:   { ideal: [15, 35],   aceitavel: [8, 50] },
-      nut:   { ideal: [60, 85],   aceitavel: [40, 95] },
-      chuva: { ideal: [0, 5],     aceitavel: [0, 12] },
+      solo: { ideal: [85, 100], aceitavel: [70, 100] },
+      temp: { ideal: [10, 20], aceitavel: [5, 26] },
+      ar: { ideal: [70, 90], aceitavel: [55, 95] },
+      ph: { ideal: [6.5, 7.5], aceitavel: [6, 8] },
+      luz: { ideal: [15, 35], aceitavel: [8, 50] },
+      nut: { ideal: [60, 85], aceitavel: [40, 95] },
+      chuva: { ideal: [0, 5], aceitavel: [0, 12] },
     },
   },
 };
@@ -150,9 +150,11 @@ async function chamarApi(url, metodo = "GET", corpo) {
   if (corpo !== undefined) {
     opcoes.headers["Content-Type"] = "application/json";
     opcoes.body = JSON.stringify(corpo);
+    
   }
 
-  const resposta = await fetch(url, opcoes);
+  const resposta = await fetch(`http://localhost:3000${url}`, opcoes);
+
   if (!resposta.ok) {
     throw new Error("Erro " + resposta.status + " em " + metodo + " " + url);
   }
@@ -444,7 +446,7 @@ function renderizarHistorico() {
     linhas += `
   <tr>
     <td>
-      ${leitura.quando ? `<small>${escaparHtml(leitura.quando)}</small>` : new Date(leitura.criadoEm).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", }) }
+      ${leitura.quando ? `<small>${escaparHtml(leitura.quando)}</small>` : new Date(leitura.criadoEm).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", })}
     </td>
     ${celulas}
     <td><button class="btn-secundario" data-id="${leitura.id}">x</button></td>
@@ -493,13 +495,15 @@ async function salvarLeitura() {
 
   const observacao = porId("observacao").value.trim();
 
-const dataAtual = new Date().toLocaleString("pt-BR", {
-  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
-});
+  const dataAtual = new Date().toLocaleString("pt-BR", {
+    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+  });
+
   await chamarApi(`/api/canteiros/${canteiroAtual().id}/leituras`, "POST", {
     quando: observacao || dataAtual,
     valores,
   });
+
   await carregarDados();
 
   porId("observacao").value = "";
@@ -509,6 +513,7 @@ const dataAtual = new Date().toLocaleString("pt-BR", {
   renderizarComparacao();
   renderizarHistorico();
   mostrarMensagem("Leitura salva.", "ok");
+  await atualizarPainelSequencia();
 }
 
 async function apagarLeitura(idLeitura) {
@@ -527,12 +532,98 @@ async function limparHistorico() {
 
 porId("btn-salvar").addEventListener("click", () => executar(salvarLeitura));
 porId("btn-limpar").addEventListener("click", () => executar(limparHistorico));
+// =====================================
+// ATUALIZAÇÃO DO PAINEL DO TOMATE
+// =====================================
+
+async function atualizarPainelSequencia() {
+  const tomate = await chamarApi("/api/sequencia");
+
+  const mascote = porId("tomate-mascote");
+  const semanas = porId("sequencia-semanas");
+  const mensagem = porId("mensagem-sequencia");
+  const estado = porId("estado-tomate");
+
+  const vidas = [
+    porId("vida-1"),
+    porId("vida-2"),
+    porId("vida-3")
+  ];
+
+  semanas.textContent =
+    `${tomate.semanas_consecutivas} ${tomate.semanas_consecutivas === 1 ? "semana" : "semanas"
+    }`;
+
+  vidas.forEach((vida, indice) => {
+    vida.classList.toggle("vida-perdida", indice >= tomate.vidas);
+  });
+
+  mascote.classList.remove(
+    "tomate-murcho",
+    "tomate-muito-murcho",
+    "tomate-perdido"
+  );
+
+  if (tomate.perdido || tomate.vidas <= 0) {
+    mascote.textContent = "🥀";
+    mascote.classList.add("tomate-perdido");
+    estado.textContent = "Tomate perdido";
+    mensagem.textContent =
+      "Registre uma nova leitura para começar outra sequência.";
+    return;
+  }
+
+  if (!tomate.ultima_semana) {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Registre sua primeira leitura para iniciar a sequência!";
+    return;
+  }
+
+  const agora = new Date();
+  const inicioSemana = new Date(agora);
+  inicioSemana.setHours(0, 0, 0, 0);
+  inicioSemana.setDate(
+    inicioSemana.getDate() - ((inicioSemana.getDay() + 6) % 7)
+  );
+
+  const ultimaSemana = String(tomate.ultima_semana).slice(0, 10);
+  const semanaAtual = inicioSemana.toISOString().slice(0, 10);
+  const atividadeNestaSemana = ultimaSemana === semanaAtual;
+
+  if (atividadeNestaSemana) {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Boa! Você já cuidou do seu tomate nesta semana.";
+  } else if (tomate.vidas === 1) {
+    mascote.textContent = "🍅";
+    mascote.classList.add("tomate-muito-murcho");
+    estado.textContent = "Última vida!";
+    mensagem.textContent =
+      "Registre uma leitura para cuidar do tomate!";
+  } else if (tomate.vidas === 2) {
+    mascote.textContent = "🍅";
+    mascote.classList.add("tomate-murcho");
+    estado.textContent = "Tomate murchando";
+    mensagem.textContent =
+      "Não deixe outra semana passar sem uma leitura!";
+  } else {
+    mascote.textContent = "🍅";
+    estado.textContent = "Tomate saudável";
+    mensagem.textContent =
+      "Registre uma leitura nesta semana para manter a sequência.";
+  }
+}
 
 async function iniciar() {
   try {
     await carregarDados();
     renderizarTudo();
+    await atualizarPainelSequencia();
   } catch (erro) {
+    console.log(erro)
     console.error(erro);
     mostrarMensagem(
       "Não foi possível conectar ao servidor. Rode 'node server.js' e abra http://localhost:3000.",
