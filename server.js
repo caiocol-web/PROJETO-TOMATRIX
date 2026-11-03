@@ -5,7 +5,7 @@ const registrarSequencia = require("./public/sequencia-api.js");
 // Conexão com o PostgreSQL instalado neste computador
 const pool = new Pool({
   host: "localhost",
-  port: 5432,
+  port: Number(process.env.PGPORT) || 5432,
   user: "postgres",
   password: "caio1201",
   database: "tomatrix",

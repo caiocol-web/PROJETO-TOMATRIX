@@ -451,3 +451,98 @@ th {
     transition: none !important;
   }
 }
+/* =====================================
+   CABEÇALHO: logo + título do Tomatrix + botão para voltar ao login
+   Usa as cores do style.css; o valor depois da vírgula só vale se a variável não existir.
+===================================== */
+
+.cabecalho {
+  /* O logo é um JPEG com fundo branco, então o cabeçalho também é branco */
+  background: #ffffff;
+  border-bottom: 2px solid var(--borda, rgba(20, 34, 26, 0.2));
+  box-shadow: 0 4px 18px rgba(20, 34, 26, 0.08);
+}
+
+.cabecalho-conteudo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 10px 16px;
+}
+
+.cabecalho-logo {
+  display: block;
+  height: 72px;
+  width: auto;
+  flex: none;
+}
+
+.cabecalho-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.cabecalho h1 {
+  margin: 0;
+  text-align: left;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.cabecalho-subtitulo {
+  margin: 2px 0 0;
+  color: var(--texto-suave, #5b6b61);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+/* Botão "Voltar ao login" (mesmo estilo dos botões secundários) */
+.btn-voltar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 2px solid var(--borda, rgba(20, 34, 26, 0.2));
+  border-radius: 40px;
+  background: transparent;
+  color: var(--texto, #14221a);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.3s;
+}
+
+.btn-voltar:hover {
+  background: var(--vidro-forte, rgba(20, 34, 26, 0.06));
+}
+
+.btn-voltar:focus-visible {
+  outline: 2px solid var(--texto, #14221a);
+  outline-offset: 2px;
+}
+
+/* Telas pequenas: logo e botão na primeira linha, título embaixo */
+@media (max-width: 600px) {
+  .cabecalho-conteudo {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .cabecalho-logo {
+    height: 58px;
+  }
+
+  .cabecalho-texto {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .cabecalho h1 {
+    font-size: 1.35rem;
+  }
+}
